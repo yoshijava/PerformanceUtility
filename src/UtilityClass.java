@@ -1,30 +1,33 @@
-import android.util.*;
 import java.io.*;
 import java.util.regex.*;
-import android.app.ActivityManager;
-import android.content.Context;
 import java.util.*;
-import android.content.Context;
-import android.os.Binder;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.*;
 
 public class UtilityClass {
     // for debug message
-    String TAG = "UtilityClass";
     public static void log(String s) {
-       // System.out.println(TAG + " " + s);
-       Log.d(TAG, s);
+    //    System.out.println(TAG + " " + s);
+    //    if(AopGlobalInfo.isAopDebugMode()) {
+    //        Log.d(AopGlobalInfo.AOP_TAG, s);
+    //    }
     }
 
     // for debug message
     public static void logd(String s, Exception e) {
         // System.out.println(TAG + "[DEBUG] " + s);
-        Log.d(TAG, s, e);
+        // if(AopGlobalInfo.isAopDebugMode()) {
+        //     Log.d(AopGlobalInfo.AOP_TAG, s, e);
+        // }
     }
 
     // for debug message
     public static void logd(String s) {
         // System.out.println(TAG + "[DEBUG] " + s);
-        Log.d(TAG, s);
+        // if(AopGlobalInfo.isAopDebugMode()) {
+        //     Log.d(AopGlobalInfo.AOP_TAG, s);
+        // }
     }
 
     public static void checkOS() {
@@ -56,22 +59,36 @@ public class UtilityClass {
         echo( "" + value, path);
     }
 
-    public static double getStdDev(CircularFifoQueue<Double> elements) {
-        double sumOfElement = 0;
-        for(double element : elements) {
-            sumOfElement += element;
-        }
-        double avg = sumOfElement / elements.size();
-        double sum = 0;
-        for(double element : elements) {
-            double elementToDouble = (double) element;
-            sum += Math.pow( elementToDouble - avg, 2);
-        }
-        double stdDev = Math.sqrt(sum/elements.size());
-        return stdDev;
+    // public static double getStdDev(CircularFifoQueue<Double> elements) {
+    //     double sumOfElement = 0;
+    //     for(double element : elements) {
+    //         sumOfElement += element;
+    //     }
+    //     double avg = sumOfElement / elements.size();
+    //     double sum = 0;
+    //     for(double element : elements) {
+    //         double elementToDouble = (double) element;
+    //         sum += Math.pow( elementToDouble - avg, 2);
+    //     }
+    //     double stdDev = Math.sqrt(sum/elements.size());
+    //     return stdDev;
+    // }
+
+    private static String nioRead(String path) throws IOException {
+        FileInputStream stream = new FileInputStream(new File(path));
+        FileChannel channel = stream.getChannel();
+        MappedByteBuffer mappedBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        String content = Charset.defaultCharset().decode(mappedBuffer).toString();
+        stream.close();
+        return content;
     }
 
     public static String justGetFirstLine(String filename) throws IOException {
+        return nioRead(filename);
+    }
+
+    @Deprecated
+    public static String oldJustGetFirstLine(String filename) throws IOException {
         String line = null;
         FileReader fileReader = new FileReader( filename );
         BufferedReader bReader = new BufferedReader(fileReader);
@@ -80,4 +97,5 @@ public class UtilityClass {
         fileReader.close();
         return line;
     }
+
 }
